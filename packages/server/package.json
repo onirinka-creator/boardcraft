@@ -1,0 +1,16 @@
+{
+	"name": "@boardcraft/server",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"scripts": {
+	  "dev": "node src/index.js",
+	  "start": "node src/index.js"
+	},
+	"dependencies": {
+	  "cors": "^2.8.5",
+	  "express": "^4.21.0",
+	  "y-websocket": "^2.1.0",
+	  "yjs": "^13.6.0"
+	}
+  }
