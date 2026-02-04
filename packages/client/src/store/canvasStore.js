@@ -71,6 +71,8 @@ const useCanvasStore = create((set, get) => ({
 
 	selectElement: (id) => set({ selectedIds: [id] }),
 
+	setElements: (elements) => set({ elements }),
+
 	addToSelection: (id) =>
 		set((state) => ({
 			selectedIds: state.selectedIds.includes(id)

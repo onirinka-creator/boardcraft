@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { Stage, Layer, Rect, Circle, Text, Transformer } from 'react-konva';
+import { useYjsSync } from '../collaboration/useYjsSync';
 import useCanvasStore from '../store/canvasStore';
 
 export const InfiniteCanvas = () => {
@@ -7,6 +8,8 @@ export const InfiniteCanvas = () => {
 	const transformerRef = useRef(null);
 	const elementRefs = useRef({});
 	const layerRef = useRef(null);
+
+	const { syncElement } = useYjsSync('my-board');
 
 	const [isPanning, setIsPanning] = useState(false);
 
@@ -174,7 +177,13 @@ export const InfiniteCanvas = () => {
 
 	const handleElementDragEnd = (id, e) => {
 		const node = e.target;
-		updateElement(id, { x: node.x(), y: node.y() });
+		const updates = { x: node.x(), y: node.y() };
+		updateElement(id, updates);
+
+		const el = elements.find((el) => el.id === id);
+		if (el) {
+			syncElement(id, { ...el, ...updates });
+		}
 	};
 
 	const handleTransformEnd = () => {
@@ -182,13 +191,20 @@ export const InfiniteCanvas = () => {
 			const node = elementRefs.current[id];
 			if (!node) return;
 
-			updateElement(id, {
+			const updates = {
 				x: node.x(),
 				y: node.y(),
 				rotation: node.rotation(),
 				scaleX: node.scaleX(),
 				scaleY: node.scaleY(),
-			});
+			};
+
+			updateElement(id, updates);
+
+			const el = elements.find((el) => el.id === id);
+			if (el) {
+				syncElement(id, { ...el, ...updates });
+			}
 		});
 	};
 

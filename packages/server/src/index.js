@@ -79,23 +79,28 @@ wss.on('connection', (ws, req) => {
 	roomClients.get(roomName).add(ws);
 
 	const stateUpdate = Y.encodeStateAsUpdate(doc);
-	ws.send(stateUpdate);
+	if (stateUpdate.length > 1) {
+		ws.send(stateUpdate);
+	}
 
 	ws.on('message', (message) => {
 		try {
 			const update = new Uint8Array(message);
-			Y.applyUpdate(doc, update);
 
-			const clients = roomClients.get(roomName);
-			if (clients) {
-				clients.forEach((client) => {
-					if (client !== ws && client.readyState === 1) {
-						client.send(message);
-					}
-				});
+			if (update.length > 0) {
+				Y.applyUpdate(doc, update, 'remote');
+
+				const clients = roomClients.get(roomName);
+				if (clients) {
+					clients.forEach((client) => {
+						if (client !== ws && client.readyState === 1) {
+							client.send(update);
+						}
+					});
+				}
 			}
 		} catch (error) {
-			console.error(`Error processing message in room ${roomName}:`, error);
+			console.error(`Error processing message in room ${roomName}: ${error}`);
 		}
 	});
 
